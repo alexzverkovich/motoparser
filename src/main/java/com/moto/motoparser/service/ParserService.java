@@ -1,11 +1,14 @@
 package com.moto.motoparser.service;
 
+import com.moto.motoparser.config.hibernate.HibernateSessionFactory;
+import com.moto.motoparser.model.ShopItemEntity;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import static com.moto.motoparser.helper.ParserHelper.parseShopItemEntity;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class ParserService {
@@ -16,27 +19,19 @@ public class ParserService {
 
         String uploadResult = "Conn not tested...";
 
-        try{
-            String url = "jdbc:mysql://localhost/store";
-            String username = "root";
-            String password = "20Sasha18*";
-            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-            try (Connection conn = DriverManager.getConnection(url, username, password)){
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        session.beginTransaction();
 
-                log.info("Connection to Store DB successful!");
-                uploadResult = "Connection to Store DB successful!";
-            }
-        }
-        catch(Exception e){
-            log.error("Connection failed...");
-            log.error(e);
-            uploadResult = e.getMessage();
-            return uploadResult;
+        ShopItemEntity shopItemEntity = new ShopItemEntity();
+        String parsingResult = parseShopItemEntity(file, shopItemEntity);
+        if (isNotBlank(parsingResult)) {
+            return "Error occurred while parsing input file." + parsingResult;
         }
 
+        session.save(shopItemEntity);
+        session.getTransaction().commit();
+        session.close();
 
-
-
-        return uploadResult;
+        return "OK. File parsed.";
     }
 }
