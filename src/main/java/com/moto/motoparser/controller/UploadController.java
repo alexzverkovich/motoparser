@@ -1,6 +1,8 @@
 package com.moto.motoparser.controller;
 
 import com.moto.motoparser.model.MyUploadForm;
+import com.moto.motoparser.service.ParserService;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -40,11 +42,24 @@ public class UploadController {
     }
 
     @RequestMapping(value = "/uploadOneFile", method = RequestMethod.POST)
-    public String uploadOneFileHandlerPOST(HttpServletRequest request, Model model, @ModelAttribute("myUploadForm") MyUploadForm myUploadForm) {
+    public String uploadOneFileHandlerPOST(HttpServletRequest request, Model model,
+                                           @ModelAttribute("myUploadForm") MyUploadForm myUploadForm) {
 
-        //model.addAttribute("description", "testDescr");
-        //model.addAttribute("uploadedFiles", null);
+        ParserService parserService = new ParserService();
+
+        if (ArrayUtils.isEmpty(myUploadForm.getFileDatas())){
+            model.addAttribute("uploadedFiles", "No files to upload were provided");
+            return "fileUpload";
+        }
+
+        try {
+            String uploadResult = parserService.parseFile(myUploadForm.getFileDatas()[0]);
+            model.addAttribute("description", myUploadForm.getDescription());
+            model.addAttribute("uploadedFiles", uploadResult);
+        }catch(Exception e){
+            model.addAttribute("uploadedResult", "Error occured: "+ e);
+        }
+
         return "fileUpload";
-
     }
 }
