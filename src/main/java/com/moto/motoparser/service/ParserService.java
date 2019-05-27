@@ -7,8 +7,12 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static com.moto.motoparser.helper.ParserHelper.parseShopItemEntity;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static java.lang.String.format;
 
 @Service
 public class ParserService {
@@ -17,21 +21,26 @@ public class ParserService {
 
     public String parseFile(CommonsMultipartFile file){
 
-        String uploadResult = "Conn not tested...";
+        List<ShopItemEntity> entities = newArrayList();
+        List<String> parsingResult = parseShopItemEntity(file, entities);
+        if (!parsingResult.isEmpty()) {
+
+            String msg = parsingResult.stream().map(Object::toString).collect(Collectors.joining("\n"));
+            return msg;
+        }
 
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
         session.beginTransaction();
 
-        ShopItemEntity shopItemEntity = new ShopItemEntity();
-        String parsingResult = parseShopItemEntity(file, shopItemEntity);
-        if (isNotBlank(parsingResult)) {
-            return "Error occurred while parsing input file." + parsingResult;
+        //TODO add update here, not only insert
+
+        for(ShopItemEntity entity : entities){
+            session.save(entity);
         }
 
-        session.save(shopItemEntity);
         session.getTransaction().commit();
         session.close();
 
-        return "OK. File parsed.";
+        return format("OK. File parsed. %s records inserted", entities.size());
     }
 }

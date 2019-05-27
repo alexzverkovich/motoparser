@@ -12,31 +12,36 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.sql.Timestamp;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
 public class ParserHelper {
 
     private static Logger log = Logger.getLogger(ParserHelper.class);
 
-    public static String parseShopItemEntity(CommonsMultipartFile file, ShopItemEntity shopItemEntity) {
+    public static List<String> parseShopItemEntity(CommonsMultipartFile file, List<ShopItemEntity> shopItemEntities) {
 
-        String msg = "";
+        List<String> errs = newArrayList();
+        String msg  = "";
         try {
 
             if (file.isEmpty()) {
                 msg = "Cannot parse empty file!";
                 log.error(msg);
-                return msg;
+                errs.add(msg);
+                return errs;
             }
 
             if (file.getName().matches(".\\.xls")) {
                 msg = format("File has wrong extension: %s. Only .xls files can be parsed.", file.getName());
                 log.error(msg);
-                return msg;
+                errs.add(msg);
+                return errs;
             }
 
+            //because POI can't work with CommonsMultipartFile
             File tmpFile = File.createTempFile("temp", ".xls");
             FileUtils.writeByteArrayToFile(tmpFile, file.getBytes());
 
@@ -45,27 +50,24 @@ public class ParserHelper {
             HSSFSheet sheet = workbook.getSheetAt(0);
             HSSFRow row;
 
-            int rows = sheet.getPhysicalNumberOfRows();
-
-            for(int rowNdx = 1; rowNdx < 2 /*sheet.getPhysicalNumberOfRows()*/; rowNdx++) {
+            for(int rowNdx = 1; rowNdx < sheet.getPhysicalNumberOfRows(); rowNdx++) {
                 row = sheet.getRow(rowNdx);
                 if(row != null) {
-                    parseOneRow(row, shopItemEntity);
+                    shopItemEntities.add(parseOneRow(row));
                 }
             }
         } catch (Exception e) {
-            msg = "Global error occured: "+e;
             log.error(msg);
-            return msg;
+            errs.add(msg);
         }
-        return msg;
+        return errs;
     }
 
-    private static void parseOneRow(HSSFRow row, ShopItemEntity shopItemEntity) {
+    private static ShopItemEntity parseOneRow(HSSFRow row) {
 
         HSSFCell cell = row.getCell(0);
 
-        shopItemEntity.setId();
+        /*shopItemEntity.setId();
         shopItemEntity.setOrder();
         shopItemEntity.setTitle();
         shopItemEntity.setSlug();
@@ -94,6 +96,7 @@ public class ParserHelper {
         shopItemEntity.setStore();
         shopItemEntity.setPickup();
         shopItemEntity.setDelivery();
-        shopItemEntity.setTags();
+        shopItemEntity.setTags();*/
+        return null;
     }
 }
