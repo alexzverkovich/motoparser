@@ -14,9 +14,11 @@
 <form:form modelAttribute="myUploadForm" method="POST"
            action="" enctype="multipart/form-data">
 
-    Description:
+    Category:
     <br>
-    <form:input path="description" style="width:300px;"/>
+    <form:select path="category">
+        <form:options items="${categories}" itemValue="id" itemLabel="title" />
+    </form:select>
     <br/><br/>
 
     File to upload: <form:input path="fileDatas" type="file"/><br />

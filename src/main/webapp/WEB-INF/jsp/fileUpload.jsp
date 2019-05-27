@@ -10,7 +10,7 @@
 
 <h3>Uploaded Files:</h3>
 
-Description: ${description}
+Description: ${category}
 
 <br/>
 

@@ -2,6 +2,7 @@ package com.moto.motoparser.service;
 
 import com.moto.motoparser.config.hibernate.HibernateSessionFactory;
 import com.moto.motoparser.model.ShopItemEntity;
+import com.moto.motoparser.model.ShopItemKindEntity;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,9 @@ public class ParserService {
 
     public String parseFile(CommonsMultipartFile file){
 
-        List<ShopItemEntity> entities = newArrayList();
-        List<String> parsingResult = parseShopItemEntity(file, entities);
+        List<ShopItemEntity> shopItemEntities = newArrayList();
+        List<ShopItemKindEntity> shopItemKindEntities = newArrayList();
+        List<String> parsingResult = parseShopItemEntity(file, shopItemEntities, shopItemKindEntities);
         if (!parsingResult.isEmpty()) {
 
             String msg = parsingResult.stream().map(Object::toString).collect(Collectors.joining("\n"));
@@ -34,13 +36,17 @@ public class ParserService {
 
         //TODO add update here, not only insert
 
-        for(ShopItemEntity entity : entities){
+        for(ShopItemEntity entity : shopItemEntities){
+            session.save(entity);
+        }
+
+        for(ShopItemKindEntity entity : shopItemKindEntities){
             session.save(entity);
         }
 
         session.getTransaction().commit();
         session.close();
 
-        return format("OK. File parsed. %s records inserted", entities.size());
+        return format("OK. File parsed. %s records inserted", shopItemEntities.size());
     }
 }

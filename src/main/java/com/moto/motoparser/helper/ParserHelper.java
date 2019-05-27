@@ -1,6 +1,10 @@
 package com.moto.motoparser.helper;
 
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import com.moto.motoparser.model.ShopItemEntity;
+import com.moto.motoparser.model.ShopItemKindEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -12,6 +16,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -21,7 +27,8 @@ public class ParserHelper {
 
     private static Logger log = Logger.getLogger(ParserHelper.class);
 
-    public static List<String> parseShopItemEntity(CommonsMultipartFile file, List<ShopItemEntity> shopItemEntities) {
+    public static List<String> parseShopItemEntity(CommonsMultipartFile file, List<ShopItemEntity> shopItemEntities,
+                                                   List<ShopItemKindEntity> shopItemKindEntities) {
 
         List<String> errs = newArrayList();
         String msg  = "";
@@ -53,7 +60,7 @@ public class ParserHelper {
             for(int rowNdx = 1; rowNdx < sheet.getPhysicalNumberOfRows(); rowNdx++) {
                 row = sheet.getRow(rowNdx);
                 if(row != null) {
-                    shopItemEntities.add(parseOneRow(row));
+                    parseOneRow(row, shopItemEntities, shopItemKindEntities);
                 }
             }
         } catch (Exception e) {
@@ -63,28 +70,70 @@ public class ParserHelper {
         return errs;
     }
 
-    private static ShopItemEntity parseOneRow(HSSFRow row) {
+    private static void parseOneRow(HSSFRow row, List<ShopItemEntity> shopItemEntities,
+                                              List<ShopItemKindEntity> shopItemKindEntities) {
 
-        HSSFCell cell = row.getCell(0);
+        ShopItemEntity shopItemEntity = new ShopItemEntity();
 
-        /*shopItemEntity.setId();
-        shopItemEntity.setOrder();
-        shopItemEntity.setTitle();
-        shopItemEntity.setSlug();
-        shopItemEntity.setLastChanged();
-        shopItemEntity.setPublished();
-        shopItemEntity.setPublishedOn();
+        HSSFCell cell = row.getCell(0); //ID
+        shopItemEntity.setId((int)cell.getNumericCellValue());
+        shopItemEntity.setOrder((int)cell.getNumericCellValue());
+
+        cell = row.getCell(1);
+        String title = cell.getStringCellValue();
+        shopItemEntity.setTitle(title);
+
+        shopItemEntity.setPublished((byte)1);
+
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+        shopItemEntity.setPublishedOn(timestamp);
+        shopItemEntity.setLastChanged(timestamp);
+        shopItemEntity.setCreated(timestamp);
+        shopItemEntity.setModify(timestamp);
+
+        cell = row.getCell(15);
+        shopItemEntity.setPreview(cell.getStringCellValue());
+
+        shopItemEntity.setStore((byte)1);
+        shopItemEntity.setPickup((byte)1);
+        shopItemEntity.setDelivery((byte)1);
+
+        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        Translation translation =
+                translate.translate(
+                        title,
+                        Translate.TranslateOption.sourceLanguage("ru"),
+                        Translate.TranslateOption.targetLanguage("en"));
+        shopItemEntity.setSlug(translation.getTranslatedText().replaceAll("\\s","_"));
+
+        shopItemEntities.add(shopItemEntity);
+
+        ShopItemKindEntity shopItemKindEntity = new ShopItemKindEntity();
+        shopItemKindEntity.setId(shopItemEntity.getId());
+        shopItemKindEntity.setOrder(shopItemEntity.getOrder());
+        shopItemKindEntity.setShopShopitemByItemId(shopItemEntity);
+
+        shopItemKindEntity.setTitle(shopItemEntity.getTitle());
+        shopItemKindEntity.setQuantity((int)100);
+        shopItemKindEntity.setCanBuy((byte)1);
+        shopItemKindEntity.setPropertiesDict("N.");
+        shopItemKindEntity.setCreated(timestamp);
+        shopItemKindEntity.setModify(timestamp);
+
+        cell = row.getCell(6);
+        shopItemKindEntity.setPrice((int)cell.getNumericCellValue());
+
+        shopItemKindEntities.add(shopItemKindEntity);
+
+        /*
         shopItemEntity.setPublishedOff();
         shopItemEntity.setFavorite();
         shopItemEntity.setIsNew();
         shopItemEntity.setItemKindsLi();
-        shopItemEntity.setCreated();
-        shopItemEntity.setModify();
         shopItemEntity.setMetaKeywords();
         shopItemEntity.setMetaDescription();
         shopItemEntity.setAvatar();
         shopItemEntity.setCropping();
-        shopItemEntity.setPreview();
         shopItemEntity.setText();
         shopItemEntity.setYandexTitle();
         shopItemEntity.setTypePrefix();
@@ -93,10 +142,6 @@ public class ParserHelper {
         shopItemEntity.setCountryOfOrigin();
         shopItemEntity.setSalesNotes();
         shopItemEntity.setManufacturerWarranty();
-        shopItemEntity.setStore();
-        shopItemEntity.setPickup();
-        shopItemEntity.setDelivery();
         shopItemEntity.setTags();*/
-        return null;
     }
 }

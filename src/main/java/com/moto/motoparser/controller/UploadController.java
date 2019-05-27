@@ -1,6 +1,8 @@
 package com.moto.motoparser.controller;
 
-import com.moto.motoparser.model.MyUploadForm;
+import com.moto.motoparser.model.forms.MyUploadForm;
+import com.moto.motoparser.model.ShopCategoryEntity;
+import com.moto.motoparser.service.CategoryService;
 import com.moto.motoparser.service.ParserService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 public class UploadController {
@@ -36,7 +39,11 @@ public class UploadController {
     @RequestMapping(value = "/uploadOneFile", method = RequestMethod.GET)
     public String upload(Model model) {
 
+        CategoryService categoryService = new CategoryService();
+
         MyUploadForm myUploadForm = new MyUploadForm();
+        List<ShopCategoryEntity> categories =   categoryService.getCategories();
+        model.addAttribute("categories",categories);
         model.addAttribute("myUploadForm", myUploadForm);
         return "upload";
     }
@@ -54,10 +61,10 @@ public class UploadController {
 
         try {
             String uploadResult = parserService.parseFile(myUploadForm.getFileDatas()[0]);
-            model.addAttribute("description", myUploadForm.getDescription());
+            model.addAttribute("description", myUploadForm.getCategory());
             model.addAttribute("uploadedFiles", uploadResult);
         }catch(Exception e){
-            model.addAttribute("uploadedResult", "Error occured: "+ e);
+            model.addAttribute("uploadedResult", "Error occurred: "+ e);
         }
 
         return "fileUpload";

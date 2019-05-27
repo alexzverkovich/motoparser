@@ -1,20 +1,20 @@
-package com.moto.motoparser.model;
+package com.moto.motoparser.model.forms;
 
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 public class MyUploadForm {
 
-    private String description;
+    private String category;
 
     // Upload files.
     private CommonsMultipartFile[] fileDatas;
 
-    public String getDescription() {
-        return description;
+    public String getCategory() {
+        return category;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public CommonsMultipartFile[] getFileDatas() {
