@@ -64,7 +64,7 @@ public class UploadController {
             model.addAttribute("description", myUploadForm.getCategory());
             model.addAttribute("uploadedFiles", uploadResult);
         }catch(Exception e){
-            model.addAttribute("uploadedResult", "Error occurred: "+ e);
+            model.addAttribute("uploadedFiles", "Error occurred: "+ e);
         }
 
         return "fileUpload";

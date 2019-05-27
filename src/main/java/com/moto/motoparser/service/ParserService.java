@@ -31,21 +31,23 @@ public class ParserService {
             return msg;
         }
 
-        Session session = HibernateSessionFactory.getSessionFactory().openSession();
-        session.beginTransaction();
+
 
         //TODO add update here, not only insert
 
         for(ShopItemEntity entity : shopItemEntities){
+            Session session = HibernateSessionFactory.getSessionFactory().openSession();
+            session.beginTransaction();
             session.save(entity);
+            session.getTransaction().commit();
+            session.close();
         }
 
-        for(ShopItemKindEntity entity : shopItemKindEntities){
+       /* for(ShopItemKindEntity entity : shopItemKindEntities){
             session.save(entity);
-        }
+        }*/
 
-        session.getTransaction().commit();
-        session.close();
+
 
         return format("OK. File parsed. %s records inserted", shopItemEntities.size());
     }

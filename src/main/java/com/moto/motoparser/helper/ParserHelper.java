@@ -1,8 +1,5 @@
 package com.moto.motoparser.helper;
 
-import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.TranslateOptions;
-import com.google.cloud.translate.Translation;
 import com.moto.motoparser.model.ShopItemEntity;
 import com.moto.motoparser.model.ShopItemKindEntity;
 import org.apache.commons.io.FileUtils;
@@ -64,6 +61,7 @@ public class ParserHelper {
                 }
             }
         } catch (Exception e) {
+            msg = "Error occurred: "+e;
             log.error(msg);
             errs.add(msg);
         }
@@ -91,20 +89,20 @@ public class ParserHelper {
         shopItemEntity.setCreated(timestamp);
         shopItemEntity.setModify(timestamp);
 
-        cell = row.getCell(15);
+        cell = row.getCell(14);
         shopItemEntity.setPreview(cell.getStringCellValue());
 
         shopItemEntity.setStore((byte)1);
         shopItemEntity.setPickup((byte)1);
         shopItemEntity.setDelivery((byte)1);
 
-        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        /*Translate translate = TranslateOptions.getDefaultInstance().getService();
         Translation translation =
                 translate.translate(
                         title,
                         Translate.TranslateOption.sourceLanguage("ru"),
                         Translate.TranslateOption.targetLanguage("en"));
-        shopItemEntity.setSlug(translation.getTranslatedText().replaceAll("\\s","_"));
+        shopItemEntity.setSlug(translation.getTranslatedText().replaceAll("\\s","_"));*/
 
         shopItemEntities.add(shopItemEntity);
 
@@ -120,7 +118,7 @@ public class ParserHelper {
         shopItemKindEntity.setCreated(timestamp);
         shopItemKindEntity.setModify(timestamp);
 
-        cell = row.getCell(6);
+        cell = row.getCell(5);
         shopItemKindEntity.setPrice((int)cell.getNumericCellValue());
 
         shopItemKindEntities.add(shopItemKindEntity);
