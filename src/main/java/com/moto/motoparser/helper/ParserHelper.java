@@ -96,13 +96,25 @@ public class ParserHelper {
         shopItemEntity.setPickup((byte)1);
         shopItemEntity.setDelivery((byte)1);
 
-        /*Translate translate = TranslateOptions.getDefaultInstance().getService();
-        Translation translation =
-                translate.translate(
-                        title,
-                        Translate.TranslateOption.sourceLanguage("ru"),
-                        Translate.TranslateOption.targetLanguage("en"));
-        shopItemEntity.setSlug(translation.getTranslatedText().replaceAll("\\s","_"));*/
+        //TODO set real slug here
+        shopItemEntity.setSlug("");
+
+        //set other fields to empty, because they can't be null in database
+        shopItemEntity.setFavorite((byte)0);
+        shopItemEntity.setIsNew((byte)0);
+        shopItemEntity.setItemKindsLi("");
+        shopItemEntity.setMetaKeywords("");
+        shopItemEntity.setMetaDescription("");
+        shopItemEntity.setCropping("");
+        shopItemEntity.setText("");
+        shopItemEntity.setYandexTitle("");
+        shopItemEntity.setTypePrefix("");
+        shopItemEntity.setVendor("");
+        shopItemEntity.setModelName("");
+        shopItemEntity.setCountryOfOrigin("");
+        shopItemEntity.setSalesNotes("");
+        shopItemEntity.setManufacturerWarranty((byte)0);
+        shopItemEntity.setTags("");
 
         shopItemEntities.add(shopItemEntity);
 
@@ -123,23 +135,5 @@ public class ParserHelper {
 
         shopItemKindEntities.add(shopItemKindEntity);
 
-        /*
-        shopItemEntity.setPublishedOff();
-        shopItemEntity.setFavorite();
-        shopItemEntity.setIsNew();
-        shopItemEntity.setItemKindsLi();
-        shopItemEntity.setMetaKeywords();
-        shopItemEntity.setMetaDescription();
-        shopItemEntity.setAvatar();
-        shopItemEntity.setCropping();
-        shopItemEntity.setText();
-        shopItemEntity.setYandexTitle();
-        shopItemEntity.setTypePrefix();
-        shopItemEntity.setVendor();
-        shopItemEntity.setModelName();
-        shopItemEntity.setCountryOfOrigin();
-        shopItemEntity.setSalesNotes();
-        shopItemEntity.setManufacturerWarranty();
-        shopItemEntity.setTags();*/
     }
 }

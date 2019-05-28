@@ -49,7 +49,7 @@ public class ShopItemEntity {
     }
 
     @Basic
-    @Column(name = "order")
+    @Column(name = "`order`")
     public int getOrder() {
         return order;
     }
@@ -159,7 +159,7 @@ public class ShopItemEntity {
     }
 
     @Basic
-    @Column(name = "modify")
+    @Column(name = "`modify`")
     public Timestamp getModify() {
         return modify;
     }
