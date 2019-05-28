@@ -1,7 +1,10 @@
 package com.moto.motoparser.helper;
 
+import com.moto.motoparser.model.ShopCategoryEntity;
 import com.moto.motoparser.model.ShopItemEntity;
 import com.moto.motoparser.model.ShopItemKindEntity;
+import com.moto.motoparser.model.ShopShopitemCategoriesEntity;
+import com.moto.motoparser.service.CategoryService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -23,9 +26,12 @@ import static java.lang.String.format;
 public class ParserHelper {
 
     private static Logger log = Logger.getLogger(ParserHelper.class);
+    private static CategoryService categoryService = new CategoryService();
 
-    public static List<String> parseShopItemEntity(CommonsMultipartFile file, List<ShopItemEntity> shopItemEntities,
-                                                   List<ShopItemKindEntity> shopItemKindEntities) {
+    public static List<String> parseShopItemEntity(String category, CommonsMultipartFile file,
+                                                   List<ShopItemEntity> shopItemEntities,
+                                                   List<ShopItemKindEntity> shopItemKindEntities,
+                                                   List<ShopShopitemCategoriesEntity>  shopShopitemCategoriesEntities) {
 
         List<String> errs = newArrayList();
         String msg  = "";
@@ -57,7 +63,7 @@ public class ParserHelper {
             for(int rowNdx = 1; rowNdx < sheet.getPhysicalNumberOfRows(); rowNdx++) {
                 row = sheet.getRow(rowNdx);
                 if(row != null) {
-                    parseOneRow(row, shopItemEntities, shopItemKindEntities);
+                    parseOneRow(row, shopItemEntities, shopItemKindEntities, shopShopitemCategoriesEntities, category);
                 }
             }
         } catch (Exception e) {
@@ -68,14 +74,24 @@ public class ParserHelper {
         return errs;
     }
 
-    private static void parseOneRow(HSSFRow row, List<ShopItemEntity> shopItemEntities,
-                                              List<ShopItemKindEntity> shopItemKindEntities) {
+    private static void parseOneRow(HSSFRow row,
+                                    List<ShopItemEntity> shopItemEntities,
+                                    List<ShopItemKindEntity> shopItemKindEntities,
+                                    List<ShopShopitemCategoriesEntity> shopShopitemCategoriesEntities,
+                                    String category) {
 
         ShopItemEntity shopItemEntity = new ShopItemEntity();
 
         HSSFCell cell = row.getCell(0); //ID
-        shopItemEntity.setId((int)cell.getNumericCellValue());
-        shopItemEntity.setOrder((int)cell.getNumericCellValue());
+
+        Integer id = (int) cell.getNumericCellValue();
+
+        //sometimes we have empty rows in import file, for them id=0. Should skip them.
+        if(id == 0){
+            return;
+        }
+        shopItemEntity.setId(id);
+        shopItemEntity.setOrder(id);
 
         cell = row.getCell(1);
         String title = cell.getStringCellValue();
@@ -131,9 +147,25 @@ public class ParserHelper {
         shopItemKindEntity.setModify(timestamp);
 
         cell = row.getCell(5);
-        shopItemKindEntity.setPrice((int)cell.getNumericCellValue());
+        shopItemKindEntity.setPrice(id);
+
+        //set other fields to empty, because they can't be null in database
+        shopItemKindEntity.setDesc("");
+        shopItemKindEntity.setCropping("");
+        shopItemKindEntity.setNumberCatalog("");
+        shopItemKindEntity.setOldPrice(0);
+        shopItemKindEntity.setProductSize("");
+        shopItemKindEntity.setWeight("");
 
         shopItemKindEntities.add(shopItemKindEntity);
+
+        ShopShopitemCategoriesEntity shopShopitemCategoriesEntity = new ShopShopitemCategoriesEntity();
+        shopShopitemCategoriesEntity.setShopItem(shopItemEntity);
+
+        ShopCategoryEntity categoryEntity = categoryService.getCategoryById(Integer.parseInt(category));
+        shopShopitemCategoriesEntity.setCategory(categoryEntity);
+
+        shopShopitemCategoriesEntities.add(shopShopitemCategoriesEntity);
 
     }
 }

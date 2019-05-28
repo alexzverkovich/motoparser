@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class CategoryService {
+
     public List<ShopCategoryEntity> getCategories() {
 
         Session session = HibernateSessionFactory.getSessionFactory().openSession();
@@ -24,5 +25,10 @@ public class CategoryService {
         session.close();
 
         return categories;
+    }
+
+    public ShopCategoryEntity getCategoryById(Integer id) {
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        return (ShopCategoryEntity) session.get(ShopCategoryEntity.class, id);
     }
 }

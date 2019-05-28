@@ -16,6 +16,7 @@
         <mapping class="com.moto.motoparser.model.ShopItemEntity"/>
         <mapping class="com.moto.motoparser.model.ShopItemKindEntity"/>
         <mapping class="com.moto.motoparser.model.ShopPromoItemEntity"/>
+        <mapping class="com.moto.motoparser.model.ShopShopitemCategoriesEntity"/>
 
         <!-- DB schema will be updated if needed -->
         <!-- <property name="hbm2ddl.auto">update</property> -->

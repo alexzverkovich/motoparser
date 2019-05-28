@@ -3,6 +3,7 @@ package com.moto.motoparser.service;
 import com.moto.motoparser.config.hibernate.HibernateSessionFactory;
 import com.moto.motoparser.model.ShopItemEntity;
 import com.moto.motoparser.model.ShopItemKindEntity;
+import com.moto.motoparser.model.ShopShopitemCategoriesEntity;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,13 @@ public class ParserService {
 
     Logger log = Logger.getLogger(ParserService.class);
 
-    public String parseFile(CommonsMultipartFile file){
+    public String parseFile(String category, CommonsMultipartFile file){
 
         List<ShopItemEntity> shopItemEntities = newArrayList();
         List<ShopItemKindEntity> shopItemKindEntities = newArrayList();
-        List<String> parsingResult = parseShopItemEntity(file, shopItemEntities, shopItemKindEntities);
+        List<ShopShopitemCategoriesEntity>  shopShopitemCategoriesEntities = newArrayList();
+        List<String> parsingResult = parseShopItemEntity(category, file, shopItemEntities, shopItemKindEntities,
+                shopShopitemCategoriesEntities);
         if (!parsingResult.isEmpty()) {
 
             String msg = parsingResult.stream().map(Object::toString).collect(Collectors.joining("\n"));
@@ -34,19 +37,23 @@ public class ParserService {
 
 
         //TODO add update here, not only insert
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        session.beginTransaction();
 
         for(ShopItemEntity entity : shopItemEntities){
-            Session session = HibernateSessionFactory.getSessionFactory().openSession();
-            session.beginTransaction();
             session.save(entity);
-            session.getTransaction().commit();
-            session.close();
         }
 
-       /* for(ShopItemKindEntity entity : shopItemKindEntities){
+        for(ShopItemKindEntity entity : shopItemKindEntities){
             session.save(entity);
-        }*/
+        }
 
+        for(ShopShopitemCategoriesEntity entity : shopShopitemCategoriesEntities){
+            session.save(entity);
+        }
+
+        session.getTransaction().commit();
+        session.close();
 
 
         return format("OK. File parsed. %s records inserted", shopItemEntities.size());

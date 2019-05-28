@@ -36,7 +36,7 @@ public class ShopItemKindEntity {
     }
 
     @Basic
-    @Column(name = "order")
+    @Column(name = "`order`")
     public int getOrder() {
         return order;
     }
@@ -166,7 +166,7 @@ public class ShopItemKindEntity {
     }
 
     @Basic
-    @Column(name = "modify")
+    @Column(name = "`modify`")
     public Timestamp getModify() {
         return modify;
     }

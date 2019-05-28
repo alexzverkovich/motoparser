@@ -60,7 +60,7 @@ public class UploadController {
         }
 
         try {
-            String uploadResult = parserService.parseFile(myUploadForm.getFileDatas()[0]);
+            String uploadResult = parserService.parseFile(myUploadForm.getCategory(), myUploadForm.getFileDatas()[0]);
             model.addAttribute("description", myUploadForm.getCategory());
             model.addAttribute("uploadedFiles", uploadResult);
         }catch(Exception e){
