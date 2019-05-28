@@ -146,7 +146,7 @@ public class ShopItemKindEntity {
     }
 
     @Basic
-    @Column(name = "desc")
+    @Column(name = "`desc`")
     public String getDesc() {
         return desc;
     }
