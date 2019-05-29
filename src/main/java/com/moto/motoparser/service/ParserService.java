@@ -41,21 +41,21 @@ public class ParserService {
         session.beginTransaction();
 
         for(ShopItemEntity entity : shopItemEntities){
-            session.save(entity);
+            session.saveOrUpdate(entity);
         }
 
         for(ShopItemKindEntity entity : shopItemKindEntities){
-            session.save(entity);
+            session.saveOrUpdate(entity);
         }
 
         for(ShopShopitemCategoriesEntity entity : shopShopitemCategoriesEntities){
-            session.save(entity);
+            session.saveOrUpdate(entity);
         }
 
         session.getTransaction().commit();
         session.close();
 
 
-        return format("OK. File parsed. %s records inserted", shopItemEntities.size());
+        return format("OK. File parsed. %s records inserted/updated", shopItemEntities.size());
     }
 }

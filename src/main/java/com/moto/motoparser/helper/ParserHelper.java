@@ -5,6 +5,7 @@ import com.moto.motoparser.model.ShopItemEntity;
 import com.moto.motoparser.model.ShopItemKindEntity;
 import com.moto.motoparser.model.ShopShopitemCategoriesEntity;
 import com.moto.motoparser.service.CategoryService;
+import com.moto.motoparser.service.ShopItemCategoryService;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -159,13 +160,27 @@ public class ParserHelper {
 
         shopItemKindEntities.add(shopItemKindEntity);
 
-        ShopShopitemCategoriesEntity shopShopitemCategoriesEntity = new ShopShopitemCategoriesEntity();
-        shopShopitemCategoriesEntity.setShopItem(shopItemEntity);
+        //check whether we need to insert new shopitem_category record, or update existing, or do nothing
+        ShopItemCategoryService shopItemCategoryService = new ShopItemCategoryService();
+        ShopShopitemCategoriesEntity refined = shopItemCategoryService.getShopItemCategory(id);
 
-        ShopCategoryEntity categoryEntity = categoryService.getCategoryById(Integer.parseInt(category));
-        shopShopitemCategoriesEntity.setCategory(categoryEntity);
+        int categoryId = Integer.parseInt(category);
+        if (refined == null || refined.getCategory().getId() != categoryId){
 
-        shopShopitemCategoriesEntities.add(shopShopitemCategoriesEntity);
+            ShopShopitemCategoriesEntity shopShopitemCategoriesEntity = new ShopShopitemCategoriesEntity();
+            shopShopitemCategoriesEntity.setShopItem(shopItemEntity);
+
+            ShopCategoryEntity categoryEntity = categoryService.getCategoryById(categoryId);
+            shopShopitemCategoriesEntity.setCategory(categoryEntity);
+
+            if(refined != null){
+                shopShopitemCategoriesEntity.setId(refined.getId());
+            }
+
+            shopShopitemCategoriesEntities.add(shopShopitemCategoriesEntity);
+        }
+
+
 
     }
 }
